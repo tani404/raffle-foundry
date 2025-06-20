@@ -6,21 +6,21 @@ import {Raffle} from "src/Raffle.sol";
 import {HelperConfig} from "script/HelperConfig.s.sol";
 import {CreateSubscription, FundSubscription, AddConsumer} from "script/Interactions.s.sol";
 
-contract DeployRaffle is Script{
-    function run() public{
+contract DeployRaffle is Script {
+    function run() public {
         deployRaffle();
     }
 
-    function deployRaffle() public returns(Raffle, HelperConfig){
+    function deployRaffle() public returns (Raffle, HelperConfig) {
         HelperConfig helperConfig = new HelperConfig();
         HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
 
-
         //manually creating subscription id thru code
-        if(config.subscriptionId == 0){
+        if (config.subscriptionId == 0) {
             //create subscription
             CreateSubscription createSubscription = new CreateSubscription();
-            (config.subscriptionId, config.vrfCoordinator) = createSubscription.createSubscription(config.vrfCoordinator, config.account);
+            (config.subscriptionId, config.vrfCoordinator) =
+                createSubscription.createSubscription(config.vrfCoordinator, config.account);
 
             //add funds
             FundSubscription fundSubscription = new FundSubscription();
@@ -30,7 +30,14 @@ contract DeployRaffle is Script{
         }
 
         vm.startBroadcast(config.account);
-        Raffle raffle = new Raffle(config.entranceFee, config.interval, config.vrfCoordinator, config.keyHash, config.subscriptionId, config.callbackGasLimit);
+        Raffle raffle = new Raffle(
+            config.entranceFee,
+            config.interval,
+            config.vrfCoordinator,
+            config.keyHash,
+            config.subscriptionId,
+            config.callbackGasLimit
+        );
         vm.stopBroadcast();
 
         //adding consumer:
